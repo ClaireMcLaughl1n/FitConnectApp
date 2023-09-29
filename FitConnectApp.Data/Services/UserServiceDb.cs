@@ -1,4 +1,3 @@
-
 using FitConnectApp.Data.Entities;
 using FitConnectApp.Data.Services;
 using FitConnectApp.Data.Security;
@@ -18,7 +17,7 @@ namespace FitConnectApp.Data.Services
 
         public void Initialise()
         {
-           ctx.Initialise(); 
+        //    ctx.Initialise(); 
         }
 
         // ------------------ User Related Operations ------------------------
@@ -52,8 +51,9 @@ namespace FitConnectApp.Data.Services
             return ctx.Users.FirstOrDefault(s => s.Id == id);
         }
 
+
         // Add a new User checking a User with same email does not exist
-        public User AddUser(string name, string email, string password, Role role)
+        public User AddUser(string name, string email, string password, Role role, double height)
         {     
             var existing = GetUserByEmail(email);
             if (existing != null)
@@ -65,8 +65,9 @@ namespace FitConnectApp.Data.Services
             {            
                 Name = name,
                 Email = email,
-                Password = Hasher.CalculateHash(password), // can hash if required 
-                Role = role              
+                Password = Hasher.CalculateHash(password),
+                Role = role,  
+                Height = height,          
             };
             ctx.Users.Add(user);
             ctx.SaveChanges();
@@ -103,8 +104,8 @@ namespace FitConnectApp.Data.Services
             // update the details of the User retrieved and save
             User.Name = updated.Name;
             User.Email = updated.Email;
-            User.Password = Hasher.CalculateHash(updated.Password);  
-            User.Role = updated.Role; 
+            User.Password = Hasher.CalculateHash(updated.Password);
+            User.Height = updated.Height; 
 
             ctx.SaveChanges();          
             return User;
@@ -120,6 +121,11 @@ namespace FitConnectApp.Data.Services
         public bool IsEmailAvailable(string email, int userId)
         {
             return ctx.Users.FirstOrDefault(u => u.Email == email && u.Id != userId) == null;
+        }
+        
+        public User GetUserByName(string name)
+        {
+            return ctx.Users.FirstOrDefault(u => u.Name != null && u.Name.ToLower() == name.ToLower());
         }
 
         public IList<User> GetUsersQuery(Func<User,bool> q)
@@ -181,6 +187,11 @@ namespace FitConnectApp.Data.Services
             return ctx.ForgotPasswords.Where(t => t.ExpiresAt > DateTime.Now)
                                       .Select(t => t.Token)
                                       .ToList();
+        }
+        public double GetUserHeightById(int userId)
+        {
+            var user = ctx.Users.FirstOrDefault(u => u.Id == userId);
+            return user != null ? user.Height : 0.0;
         }
    
     }

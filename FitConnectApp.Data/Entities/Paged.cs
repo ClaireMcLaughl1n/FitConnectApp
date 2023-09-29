@@ -19,7 +19,10 @@ public static class PagedExtensions
         var totalRows = query.Count();
 
         // slice page required         
-        var data = query.Skip((page-1)*size).Take(size).ToList();
+        var data = query
+            .Skip((page-1)*size)
+            .Take(size)
+            .ToList();
         
         // build paged result
         var paged = new Paged<T> {
